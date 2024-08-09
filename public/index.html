@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ant Identification</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#">Home</a>
+            <a href="guide.html">Identification Guide</a>
+            <a href="login.html">Admin Login</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Ant Identification Home</h1>
+        <section>
+            <h2>Submit Your Ant Photo</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="antImage" required>
+                <button type="submit">Submit</button>
+            </form>
+            
+        </section>
+        <section id="recentUploads">
+            <h2>Recent Uploads</h2>
+            <!-- Recent uploads will be populated here -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Ant Identification Site</p>
+    </footer>
+    <script>
+        // Update the fetch URL to the correct port (3000)
+        fetch('http://localhost:3000/requests')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const recentUploads = document.getElementById('recentUploads');
+            if (data.length === 0) {
+                recentUploads.innerHTML = '<p>No recent uploads.</p>';
+            } else {
+                data.forEach(request => {
+                    const requestDiv = document.createElement('div');
+                    requestDiv.classList.add('request');
+
+                    const img = document.createElement('img');
+                    img.src = request.path;
+                    img.alt = request.originalname;
+                    img.style.width = '200px';  // Resize image
+                    img.style.height = 'auto';  // Maintain aspect ratio
+
+                    const description = document.createElement('p');
+                    description.textContent = `Unique Code: ${request.uniqueCode} | Status: ${request.status} | Outcome: ${request.outcome}`;
+
+                    requestDiv.appendChild(img);
+                    requestDiv.appendChild(description);
+                    recentUploads.appendChild(requestDiv);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching requests:', error);
+        });
+    </script>
+</body>
+</html>

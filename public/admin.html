@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/guide.html">Identification Guide</a>
+            <a href="/login.html">Admin Login</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Admin Panel</h1>
+        <h2>Uploaded Images</h2>
+        <div id="imageList">
+            <!-- Images will be populated here -->
+        </div>
+        <h2>Update Request Status</h2>
+        <form id="updateForm">
+            <label for="uniqueCode">Unique Code:</label>
+            <input type="text" id="uniqueCode" name="uniqueCode" required>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+            <label for="outcome">Outcome:</label>
+            <input type="text" id="outcome" name="outcome" required>
+            <button type="submit">Update Status</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 Ant Identification Site</p>
+    </footer>
+    <script>
+        // Fetch and display requests for admin panel
+        fetch('/admin/images')
+            .then(response => response.json())
+            .then(data => {
+                const imageList = document.getElementById('imageList');
+                if (data.length === 0) {
+                    imageList.innerHTML = '<p>No requests to review.</p>';
+                } else {
+                    data.forEach(request => {
+                        const requestDiv = document.createElement('div');
+                        requestDiv.classList.add('request');
+
+                        const img = document.createElement('img');
+                        img.src = request.path;
+                        img.alt = request.originalname;
+
+                        const description = document.createElement('p');
+                        description.textContent = `Unique Code: ${request.uniqueCode} | Status: ${request.status} | Outcome: ${request.outcome}`;
+
+                        requestDiv.appendChild(img);
+                        requestDiv.appendChild(description);
+                        imageList.appendChild(requestDiv);
+                    });
+                }
+            });
+
+        // Handle status update form submission
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/identify', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                location.reload(); // Reload to update the request list
+            });
+        });
+    </script>
+</body>
+</html>
